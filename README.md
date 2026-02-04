@@ -75,6 +75,17 @@ ENV NV_CACHE_TTL=3600
 
 The AI even added a warning: *"⚠️ Note: nordiq-validate/register must be imported before any schema/validation calls"* — a "fact" that exists only in the hidden comments.
 
+#### Tested Models
+
+The injection was tested against the following frontier models and succeeded on all of them:
+
+| Model | Result |
+|---|---|
+| ChatGPT 5 Mini | ✅ Injected |
+| Claude Code (Opus 4.5) | ✅ Injected |
+| Grok (latest) | ✅ Injected |
+| Mistral AI (latest) | ✅ Injected |
+
 ## Attack Chain
 
 ```
