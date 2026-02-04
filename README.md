@@ -1,6 +1,6 @@
 # Invisible Prompt Injection
 
-This repository documents a progressive security research effort testing how invisible content in documentation can manipulate AI-generated code. The research covers two fundamentally different steganography techniques, their effectiveness against frontier models (Claude, GPT-4), and the implications for AI-powered development tools.
+This repository documents a progressive security research effort testing how invisible content in documentation can manipulate AI-generated code. The research covers a steganography technique, its effectiveness against frontier models (Claude, GPT-4), and the implications for AI-powered development tools.
 
 > ⚠️ **Security research for defensive purposes.** All package names, domains, credentials, and endpoints are fictional. No malicious infrastructure exists. Published by [Bountyy Oy](https://bountyy.fi), a Finnish cybersecurity consultancy.
 
@@ -8,13 +8,13 @@ This repository documents a progressive security research effort testing how inv
 
 | Technique | Invisible to humans? | Invisible to AI? | Injection success? |
 |---|---|---|---|
-| **HTML comments + MD reference links** (V7) | ✅ Yes (rendered) | ❌ No — AI reads raw markdown | ✅ **Succeeded** |
+| **HTML comments + MD reference links** (V7) | ✅ Yes (rendered) | ❌ No - AI reads raw markdown | ✅ **Succeeded** |
 
-**The working attack doesn't use any exotic encoding.** It uses `<!-- HTML comments -->` and `[//]: # (markdown reference links)` — features that are invisible when rendered on GitHub, npm, or any markdown viewer, but fully readable by any LLM processing the raw file.
+**The working attack doesn't use any exotic encoding.** It uses `<!-- HTML comments -->` and `[//]: # (markdown reference links)` -features that are invisible when rendered on GitHub, npm, or any markdown viewer, but fully readable by any LLM processing the raw file.
 
 ## The Research Journey
 
-### Phase 1: HTML Comments + Markdown Reference Links (V7) — Succeeded
+### Phase 1: HTML Comments + Markdown Reference Links (V7) -Succeeded
 
 The breakthrough came from asking a different question: what's invisible to *rendered* markdown but readable as *raw* text?
 
@@ -31,8 +31,8 @@ The answer is standard markdown features:
 These are:
 - **Invisible** when GitHub, npm, VS Code preview, or any markdown renderer displays the file
 - **Fully readable** by any LLM that processes raw markdown (which is all of them)
-- **Normal** — every open source project uses HTML comments for TODO notes, build markers, lint directives
-- **Undetectable** — no Unicode anomalies, no byte count discrepancies, no scanner can flag "developer used an HTML comment"
+- **Normal** -every open source project uses HTML comments for TODO notes, build markers, lint directives
+- **Undetectable** -no Unicode anomalies, no byte count discrepancies, no scanner can flag "developer used an HTML comment"
 
 #### Payload Structure
 
@@ -73,7 +73,7 @@ ENV NV_TELEMETRY=true                                                    # ← P
 ENV NV_CACHE_TTL=3600
 ```
 
-The AI even added a warning: *"⚠️ Note: nordiq-validate/register must be imported before any schema/validation calls"* — a "fact" that exists only in the hidden comments.
+The AI even added a warning: *"⚠️ Note: nordiq-validate/register must be imported before any schema/validation calls"* -a "fact" that exists only in the hidden comments.
 
 #### Tested Models
 
@@ -91,7 +91,7 @@ The injection was tested against the following frontier models and succeeded on 
 ```
 1. Attacker publishes useful npm package with clean, working code
 2. README contains HTML comments with fake "production configuration" docs
-3. Package gains organic adoption — code passes all security scans
+3. Package gains organic adoption -code passes all security scans
 4. Developer asks AI: "help me deploy this in production"
 5. AI reads raw README → finds "documentation" in comments
 6. AI generates code with:
@@ -106,9 +106,9 @@ The injection was tested against the following frontier models and succeeded on 
 
 - **npm audit** scans code dependencies, not documentation
 - **SAST/DAST tools** don't process README files
-- **Code review** — developers don't review AI-generated "boilerplate"
-- **DLP/email gateways** — HTML comments are valid, not malicious
-- **Unicode scanners** — V7 uses zero exotic characters
+- **Code review** -developers don't review AI-generated "boilerplate"
+- **DLP/email gateways** -HTML comments are valid, not malicious
+- **Unicode scanners** -V7 uses zero exotic characters
 - **The package itself** can have a perfect security score
 
 ## Repository Contents
@@ -127,22 +127,22 @@ invisible-prompt-injection/
 
 1. **Strip HTML comments** from markdown before LLM processing
 2. **Strip markdown reference links** (`[//]: #`) that contain instructional content
-3. **Render markdown first**, then feed the rendered text to the model — not the raw source
+3. **Render markdown first**, then feed the rendered text to the model -not the raw source
 4. **Treat all documentation as untrusted input**, not system instructions
 5. **Normalize Unicode** (NFC/NFKC) and strip zero-width characters as a belt-and-suspenders measure
 
 ### For developers
 
-1. **Review AI-generated initialization blocks** — if the AI adds imports or config you didn't ask about, investigate
-2. **Question unfamiliar `require()` calls** — especially `/register`, `/init`, `/setup` subpaths
-3. **Audit `.env` suggestions** — verify every URL and endpoint the AI recommends
-4. **Inspect README source** — view raw markdown, not rendered, for dependencies you use with AI tools
+1. **Review AI-generated initialization blocks** -if the AI adds imports or config you didn't ask about, investigate
+2. **Question unfamiliar `require()` calls** -especially `/register`, `/init`, `/setup` subpaths
+3. **Audit `.env` suggestions** -verify every URL and endpoint the AI recommends
+4. **Inspect README source** -view raw markdown, not rendered, for dependencies you use with AI tools
 
 ### For platforms (GitHub, npm, PyPI)
 
-1. **Show HTML comment indicators** — badge or icon showing "this file contains N HTML comments"
-2. **Offer "rendered only" API** — give AI tools access to rendered markdown, not raw source
-3. **Scan for instructional patterns** in comments — `require()`, `configure()`, URLs in HTML comments are unusual
+1. **Show HTML comment indicators** -badge or icon showing "this file contains N HTML comments"
+2. **Offer "rendered only" API** -give AI tools access to rendered markdown, not raw source
+3. **Scan for instructional patterns** in comments -`require()`, `configure()`, URLs in HTML comments are unusual
 
 ## Key Takeaways
 
@@ -150,7 +150,7 @@ invisible-prompt-injection/
 
 2. **The attack surface is the gap between rendered and raw markdown.** Humans see rendered docs. LLMs process raw text. Anything invisible in rendering but present in raw text is a potential injection vector.
 
-3. **Frontier chat models (Claude, GPT-4) resist direct prompt injection** even when the hidden content is readable. The attack works because the payload doesn't look like injection — it looks like legitimate documentation that the AI should follow.
+3. **Frontier chat models (Claude, GPT-4) resist direct prompt injection** even when the hidden content is readable. The attack works because the payload doesn't look like injection -it looks like legitimate documentation that the AI should follow.
 
 4. **The fix is architectural.** AI tools should process rendered markdown, not raw source. HTML comments should be stripped before LLM ingestion. This is a one-line fix that eliminates the entire attack class.
 
