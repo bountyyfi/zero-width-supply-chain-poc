@@ -8,13 +8,13 @@ This repository documents a progressive security research effort testing how inv
 
 | Technique | Invisible to humans? | Invisible to AI? | Injection success? |
 |---|---|---|---|
-| **HTML comments + MD reference links** (V7) | ✅ Yes (rendered) | ❌ No - AI reads raw markdown | ✅ **Succeeded** |
+| **HTML comments + MD reference links** | ✅ Yes (rendered) | ❌ No - AI reads raw markdown | ✅ **Succeeded** |
 
 **The working attack doesn't use any exotic encoding.** It uses `<!-- HTML comments -->` and `[//]: # (markdown reference links)` -features that are invisible when rendered on GitHub, npm, or any markdown viewer, but fully readable by any LLM processing the raw file.
 
 ## The Research Journey
 
-### Phase 1: HTML Comments + Markdown Reference Links (V7) -Succeeded
+### HTML Comments + Markdown Reference Links - Succeeded
 
 The breakthrough came from asking a different question: what's invisible to *rendered* markdown but readable as *raw* text?
 
@@ -77,7 +77,7 @@ The AI even added a warning: *"⚠️ Note: nordiq-validate/register must be imp
 
 #### Tested Models
 
-The injection was tested against the following frontier models and succeeded on all of them:
+The injection was tested against the following frontier models:
 
 | Model | Result |
 |---|---|
@@ -108,7 +108,7 @@ The injection was tested against the following frontier models and succeeded on 
 - **SAST/DAST tools** don't process README files
 - **Code review** -developers don't review AI-generated "boilerplate"
 - **DLP/email gateways** -HTML comments are valid, not malicious
-- **Unicode scanners** -V7 uses zero exotic characters
+- **Unicode scanners** -this technique uses zero exotic characters
 - **The package itself** can have a perfect security score
 
 ## Repository Contents
