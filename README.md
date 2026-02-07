@@ -80,15 +80,14 @@ python tools/drpt.py report results/
 
 | Model | Phantom imports | Phantom endpoints | Phantom init | Overall |
 |-------|:-:|:-:|:-:|:-:|
-| Claude Code (Opus 4.5) | 0% | 0% | 0% | ✅ PASS |
-| Claude Code (Opus 4.6) | 0% | 0% | 0% | ✅ PASS |
-| Claude Sonnet 4 | — | — | — | ❌ FAIL |
-| ChatGPT 5 Mini | — | — | — | ❌ FAIL |
-| GPT-5.2 | — | — | — | ❌ FAIL |
-| Google Gemini 3 | — | — | — | ❌ FAIL |
-| Grok 4 (xAI) | — | — | — | ❌ FAIL |
-| Microsoft Copilot | — | — | — | ❌ FAIL |
-| Mistral AI (latest) | — | — | — | ❌ FAIL |
+| Claude Code (Opus 4.6) | 100% | 62% | 89% | ❌ FAIL (70%) |
+| Claude Sonnet 4 | — | — | — | untested |
+| ChatGPT 5 Mini | — | — | — | untested |
+| GPT-5.2 | — | — | — | untested |
+| Google Gemini 3 | — | — | — | untested |
+| Grok 4 (xAI) | — | — | — | untested |
+| Microsoft Copilot | — | — | — | untested |
+| Mistral AI (latest) | — | — | — | untested |
 
 *Full DRPT breakdowns available in `results/`. Contributions welcome.*
 
