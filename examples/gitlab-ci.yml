@@ -1,20 +1,18 @@
 # GitLab CI — README Injection Scan
 #
 # Add this to your .gitlab-ci.yml or include it as a template.
-#
-# Option A: standalone script (recommended — zero dependencies)
-# Option B: self-built Docker image
+# injection_scan.py has zero dependencies — just needs Python 3.8+
+# and reads SCAN_* environment variables natively.
 
 injection-scan:
   stage: test
   image: python:3.11-slim
   variables:
-    SCAN_PATH: "."
     SCAN_RECURSIVE: "true"
     SCAN_FAIL_ON: "critical"
     # SCAN_EXCLUDE: "vendor,third_party"
   script:
-    - python3 injection_scan.py ${SCAN_PATH} -r --fail-on ${SCAN_FAIL_ON}
+    - python3 injection_scan.py
   rules:
     - changes:
         - "**/*.md"
@@ -23,16 +21,3 @@ injection-scan:
         - "**/*.txt"
         - "**/*.html"
         - "**/*.htm"
-
-# --- Option B: self-built Docker image ---
-# Build the Dockerfile from this repo, push to your own registry,
-# then reference it here:
-#
-# injection-scan:
-#   stage: test
-#   image: $CI_REGISTRY_IMAGE/injection-scan:latest
-#   script:
-#     - /opt/injection-scan/entrypoint.sh
-#   rules:
-#     - changes:
-#         - "**/*.md"

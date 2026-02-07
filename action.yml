@@ -51,63 +51,35 @@ runs:
       id: scan
       shell: bash
       env:
-        INPUT_PATH: ${{ inputs.path }}
-        INPUT_RECURSIVE: ${{ inputs.recursive }}
-        INPUT_FAIL_ON: ${{ inputs.fail-on }}
-        INPUT_EXCLUDE: ${{ inputs.exclude }}
-        INPUT_VERBOSE: ${{ inputs.verbose }}
+        SCAN_PATH: ${{ inputs.path }}
+        SCAN_RECURSIVE: ${{ inputs.recursive }}
+        SCAN_FAIL_ON: ${{ inputs.fail-on }}
+        SCAN_EXCLUDE: ${{ inputs.exclude }}
+        SCAN_VERBOSE: ${{ inputs.verbose }}
       run: |
-        SCANNER="${{ github.action_path }}/injection_scan.py"
-
-        ARGS="${INPUT_PATH}"
-
-        if [ "${INPUT_RECURSIVE}" = "true" ]; then
-          ARGS="${ARGS} -r"
-        fi
-
-        if [ "${INPUT_VERBOSE}" = "true" ]; then
-          ARGS="${ARGS} -v"
-        fi
-
-        ARGS="${ARGS} --fail-on ${INPUT_FAIL_ON}"
-
-        # Handle excludes
-        if [ -n "${INPUT_EXCLUDE}" ]; then
-          ARGS="${ARGS} --exclude ${INPUT_EXCLUDE}"
-        fi
-
-        # Run with GitHub annotations
-        ARGS="${ARGS} --github"
-
-        echo "## 🔍 README Injection Scan Results" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-
-        python3 "${SCANNER}" ${ARGS} 2>&1 | tee /tmp/scan_output.txt
+        # The scanner reads SCAN_* env vars natively — no arg-building needed.
+        python3 "${{ github.action_path }}/injection_scan.py" 2>&1 | tee /tmp/scan_output.txt
         SCAN_EXIT=${PIPESTATUS[0]}
 
+        # Step summary
+        echo "## README Injection Scan Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
         cat /tmp/scan_output.txt >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
 
-        # Parse stats from output
+        # Parse stats
         TOTAL=$(grep -oP 'Total: \K[0-9]+' /tmp/scan_output.txt || echo "0")
         CRITICAL=$(grep -oP '[0-9]+(?= critical)' /tmp/scan_output.txt | tail -1 || echo "0")
-
         echo "total-findings=${TOTAL}" >> $GITHUB_OUTPUT
         echo "critical-findings=${CRITICAL}" >> $GITHUB_OUTPUT
 
         if [ $SCAN_EXIT -eq 0 ]; then
           echo "clean=true" >> $GITHUB_OUTPUT
-          echo "✅ No critical injection patterns found." >> $GITHUB_STEP_SUMMARY
         else
           echo "clean=false" >> $GITHUB_OUTPUT
-          echo "❌ **Critical injection patterns detected.**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Hidden content in documentation files can manipulate AI coding assistants" >> $GITHUB_STEP_SUMMARY
-          echo "into generating code with attacker-controlled imports, endpoints, and configuration." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "See the [SMAC standard](https://github.com/bountyyfi/invisible-prompt-injection/blob/main/SMAC.md) for remediation." >> $GITHUB_STEP_SUMMARY
+          echo "**Critical injection patterns detected.** See [SMAC standard](https://github.com/bountyyfi/invisible-prompt-injection/blob/main/SMAC.md) for remediation." >> $GITHUB_STEP_SUMMARY
         fi
 
         exit $SCAN_EXIT

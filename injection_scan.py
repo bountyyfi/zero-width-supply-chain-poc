@@ -439,19 +439,42 @@ def collect_files(path: str, recursive: bool = False) -> list[str]:
 def main():
     parser = argparse.ArgumentParser(
         description="Scan documentation files for invisible prompt injection patterns.",
-        epilog="Part of https://github.com/bountyyfi/invisible-prompt-injection"
+        epilog=(
+            "Environment variables (used as defaults when CLI args are omitted):\n"
+            "  SCAN_PATH       File or directory to scan       (default: .)\n"
+            "  SCAN_RECURSIVE  Scan recursively (true/false)   (default: false)\n"
+            "  SCAN_FAIL_ON    Threshold: any|warning|critical (default: critical)\n"
+            "  SCAN_EXCLUDE    Comma-separated exclude paths\n"
+            "  SCAN_VERBOSE    Show details (true/false)\n"
+            "  SCAN_FORMAT     Output: text|json|github        (default: text)\n"
+            "\n"
+            "Part of https://github.com/bountyyfi/invisible-prompt-injection"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("path", help="File or directory to scan")
-    parser.add_argument("-r", "--recursive", action="store_true", help="Scan directories recursively")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed findings")
+    parser.add_argument("path", nargs="?", default=os.environ.get("SCAN_PATH", "."),
+                        help="File or directory to scan (env: SCAN_PATH)")
+    parser.add_argument("-r", "--recursive", action="store_true",
+                        default=os.environ.get("SCAN_RECURSIVE", "").lower() == "true",
+                        help="Scan directories recursively (env: SCAN_RECURSIVE)")
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        default=os.environ.get("SCAN_VERBOSE", "").lower() == "true",
+                        help="Show detailed findings (env: SCAN_VERBOSE)")
     parser.add_argument("-q", "--quiet", action="store_true", help="Only output on findings")
-    parser.add_argument("--json", action="store_true", help="Output results as JSON")
-    parser.add_argument("--github", action="store_true", help="Output GitHub Actions annotations")
+    parser.add_argument("--json", action="store_true",
+                        default=os.environ.get("SCAN_FORMAT", "").lower() == "json",
+                        help="Output results as JSON (env: SCAN_FORMAT=json)")
+    parser.add_argument("--github", action="store_true",
+                        default=(os.environ.get("SCAN_FORMAT", "").lower() == "github"
+                                 or os.environ.get("GITHUB_ACTIONS", "") == "true"),
+                        help="Output GitHub Actions annotations (auto-enabled in GitHub Actions)")
     parser.add_argument("--strip", action="store_true", help="Output cleaned content (strip injections)")
-    parser.add_argument("--fail-on", choices=["any", "warning", "critical"], default="critical",
-                        help="Exit code 1 threshold (default: critical)")
-    parser.add_argument("--exclude", type=str, default="",
-                        help="Comma-separated list of paths to exclude")
+    parser.add_argument("--fail-on", choices=["any", "warning", "critical"],
+                        default=os.environ.get("SCAN_FAIL_ON", "critical"),
+                        help="Exit code 1 threshold (env: SCAN_FAIL_ON, default: critical)")
+    parser.add_argument("--exclude", type=str,
+                        default=os.environ.get("SCAN_EXCLUDE", ""),
+                        help="Comma-separated list of paths to exclude (env: SCAN_EXCLUDE)")
 
     args = parser.parse_args()
 

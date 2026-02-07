@@ -85,8 +85,7 @@ invisible-prompt-injection/
 ├── README.md                          ← You are here
 ├── SMAC.md                            ← Safe Markdown for AI Consumption standard
 ├── action.yml                         ← GitHub Action definition
-├── injection_scan.py                  ← Standalone scanner (zero dependencies)
-├── entrypoint.sh                      ← Universal CI wrapper
+├── injection_scan.py                  ← Scanner (zero dependencies, reads env vars)
 ├── Dockerfile                         ← Container image for any CI platform
 ├── tools/
 │   └── drpt.py                        ← DRPT benchmark framework
@@ -174,16 +173,26 @@ stage('Injection Scan') {
 
 ### Any other CI
 
-The scanner is one Python file. Copy `injection_scan.py` into your repo or use the Docker image. It uses only the Python standard library — no `pip install` needed.
+The scanner is one Python file with zero dependencies. Use CLI args or set environment variables — the script reads both:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SCAN_PATH` | `.` | File or directory to scan |
-| `SCAN_RECURSIVE` | `true` | Scan directories recursively |
-| `SCAN_FAIL_ON` | `critical` | Exit 1 threshold: `any`, `warning`, `critical` |
-| `SCAN_EXCLUDE` | | Comma-separated paths to skip |
-| `SCAN_VERBOSE` | `false` | Show detailed findings |
-| `SCAN_FORMAT` | `text` | Output format: `text`, `json`, `github` |
+```bash
+# CLI args
+python3 injection_scan.py . -r --fail-on critical
+
+# Environment variables (same result)
+SCAN_RECURSIVE=true SCAN_FAIL_ON=critical python3 injection_scan.py
+```
+
+| Variable | Default | CLI equivalent |
+|----------|---------|---------------|
+| `SCAN_PATH` | `.` | positional arg |
+| `SCAN_RECURSIVE` | `false` | `-r` |
+| `SCAN_FAIL_ON` | `critical` | `--fail-on` |
+| `SCAN_EXCLUDE` | | `--exclude` |
+| `SCAN_VERBOSE` | `false` | `-v` |
+| `SCAN_FORMAT` | `text` | `--json` / `--github` |
+
+Auto-detection: `--github` is enabled automatically when `GITHUB_ACTIONS=true`.
 
 Full examples for every platform in [`examples/`](examples/).
 
