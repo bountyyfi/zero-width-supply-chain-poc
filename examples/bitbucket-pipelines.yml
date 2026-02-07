@@ -1,0 +1,18 @@
+# Bitbucket Pipelines — README Injection Scan
+# injection_scan.py has zero dependencies — just needs Python 3.8+
+
+image: python:3.11-slim
+
+pipelines:
+  default:
+    - step:
+        name: README Injection Scan
+        script:
+          - python3 injection_scan.py . -r --fail-on critical
+
+  pull-requests:
+    '**':
+      - step:
+          name: README Injection Scan
+          script:
+            - python3 injection_scan.py . -r --fail-on critical

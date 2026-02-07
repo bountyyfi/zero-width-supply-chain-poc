@@ -1,0 +1,34 @@
+# Azure DevOps Pipelines — README Injection Scan
+# injection_scan.py has zero dependencies — just needs Python 3.8+
+
+trigger:
+  paths:
+    include:
+      - '**/*.md'
+      - '**/*.markdown'
+      - '**/*.rst'
+      - '**/*.txt'
+      - '**/*.html'
+      - '**/*.htm'
+
+pr:
+  paths:
+    include:
+      - '**/*.md'
+      - '**/*.markdown'
+      - '**/*.rst'
+      - '**/*.txt'
+      - '**/*.html'
+      - '**/*.htm'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+
+  - script: |
+      python3 injection_scan.py . -r --fail-on critical
+    displayName: 'Run README Injection Scan'

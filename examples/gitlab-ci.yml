@@ -1,0 +1,23 @@
+# GitLab CI — README Injection Scan
+#
+# Add this to your .gitlab-ci.yml or include it as a template.
+# injection_scan.py has zero dependencies — just needs Python 3.8+
+# and reads SCAN_* environment variables natively.
+
+injection-scan:
+  stage: test
+  image: python:3.11-slim
+  variables:
+    SCAN_RECURSIVE: "true"
+    SCAN_FAIL_ON: "critical"
+    # SCAN_EXCLUDE: "vendor,third_party"
+  script:
+    - python3 injection_scan.py
+  rules:
+    - changes:
+        - "**/*.md"
+        - "**/*.markdown"
+        - "**/*.rst"
+        - "**/*.txt"
+        - "**/*.html"
+        - "**/*.htm"

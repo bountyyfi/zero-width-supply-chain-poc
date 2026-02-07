@@ -1,0 +1,47 @@
+// Jenkins Pipeline — README Injection Scan
+//
+// Requires Python 3.8+ on the agent.
+// injection_scan.py has zero pip dependencies — just copy it into the repo.
+
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'SCAN_PATH',      defaultValue: '.', description: 'File or directory to scan')
+        choice(name: 'SCAN_FAIL_ON',   choices: ['critical', 'warning', 'any'], description: 'Failure threshold')
+        booleanParam(name: 'SCAN_RECURSIVE', defaultValue: true, description: 'Scan recursively')
+        string(name: 'SCAN_EXCLUDE',   defaultValue: '', description: 'Comma-separated exclude paths')
+    }
+
+    stages {
+        stage('Injection Scan') {
+            steps {
+                script {
+                    def args = "${params.SCAN_PATH}"
+
+                    if (params.SCAN_RECURSIVE) {
+                        args += " -r"
+                    }
+
+                    args += " --fail-on ${params.SCAN_FAIL_ON}"
+
+                    if (params.SCAN_EXCLUDE?.trim()) {
+                        args += " --exclude ${params.SCAN_EXCLUDE}"
+                    }
+
+                    sh "python3 injection_scan.py ${args}"
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo '❌ Injection scan found critical patterns in documentation files.'
+            echo 'See https://github.com/bountyyfi/invisible-prompt-injection/blob/main/SMAC.md'
+        }
+        success {
+            echo '✅ No critical injection patterns found.'
+        }
+    }
+}

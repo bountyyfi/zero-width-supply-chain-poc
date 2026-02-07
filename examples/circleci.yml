@@ -1,0 +1,25 @@
+# CircleCI — README Injection Scan
+#
+# Add to your .circleci/config.yml
+# injection_scan.py has zero dependencies — just needs Python 3.8+
+
+version: 2.1
+
+jobs:
+  injection-scan:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Run README Injection Scan
+          command: |
+            python3 injection_scan.py . -r --fail-on critical
+
+workflows:
+  scan:
+    jobs:
+      - injection-scan:
+          filters:
+            branches:
+              only: /.*/
